@@ -67,45 +67,4 @@ describe("kafka-basic", () => {
     await producer.disconnect();
     await consumer.disconnect();
   });
-
-  function waitUntil(predicate: () => boolean, option: { timeout: number, checkInterval: number }): Promise<void> {
-    if (option.checkInterval > option.timeout) {
-      return Promise.reject(`option.timeout must be longer than option.checkInterval`);
-    }
-
-    const doWait = (timeout: number) => new Promise<void>(resolve => {
-      setTimeout(() => {
-        resolve();
-      }, timeout);
-    });
-
-    return new Promise(async (resolve, reject) => {
-      let checkCount = 0;
-      let remainingTime = option.timeout;
-      let done = false;
-
-      while (remainingTime >= 0) {
-        checkCount += 1;
-        console.log(`Executing predicate - Round ${checkCount}`);
-        done = predicate();
-
-        if (done) {
-          break;
-        }
-
-        remainingTime -= option.checkInterval;
-
-        if (remainingTime >= 0) {
-          console.log(`Condition not met. Retry again after ${option.checkInterval}ms`);
-          await doWait(option.checkInterval);
-        }
-      }
-
-      if (done) {
-        resolve();
-      } else {
-        reject(`Condition not met after trying ${checkCount} times`);
-      }
-    });
-  }
 });
